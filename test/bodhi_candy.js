@@ -63,7 +63,7 @@ contract('BodhiCandy', (accounts) => {
       assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());  
       assert.equal((await contract.currentBalance.call()).toString(), depositAmount.mul(3).toString());
       assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.mul(3).toString());
-      const winnerBalanceBefore = web3.eth.getBalance(accounts[2]);
+      const winnerBalanceBefore = web3.eth.getBalance(USER2);
 
       const lastDepositBlock = await contract.lastDepositBlock.call();
       await timeMachine.mineTo(await getBlockNumber() + winningBlockLength.toNumber());
@@ -78,11 +78,25 @@ contract('BodhiCandy', (accounts) => {
       assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());  
       assert.equal((await contract.currentBalance.call()).toString(), depositAmount.toString());
       assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.toString());
+
+      assert.isAbove(web3.eth.getBalance(USER2).toNumber(), winnerBalanceBefore.toNumber());
+    });
+
+    it('returns any funds over the deposit', async () => {
+      const deposit = depositAmount.mul(2);
+      await contract.deposit({ 
+        value: deposit,
+        from: USER0
+      });
+      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.toString());
+      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.toString());
     });
 
     it('throws if msg.value < depositAmount', async () => {
       try {
-        await contract.deposit({ value: 1 });
+        await contract.deposit({ 
+          value: 1 
+        });
         assert.fail();
       } catch (e) {
         SolAssert.assertRevert(e);

@@ -16,16 +16,23 @@ contract BodhiCandy {
     uint256 public currentBalance;
 
     event UserWon(address indexed winner, uint256 amountWon);
+    event Returned(uint256 returned);
 
     function deposit() external payable {
         require(msg.value >= depositAmount);
+
+        // Calculate any amount over the depositAmount to return to user
+        uint256 excessDeposit = 0;
+        if (msg.value > depositAmount) {
+            excessDeposit = msg.value.sub(depositAmount);
+        }
 
         // Last depositer wins
         if (lastDepositer != address(0) 
             && lastDepositBlock != 0 
             && block.number.sub(lastDepositBlock) >= winningBlockLength) {
 
-            uint256 amountWon = currentBalance;
+            uint256 amountWon = currentBalance.add(excessDeposit);
             currentBalance = 0;
 
             if (amountWon > 0) {
@@ -42,8 +49,9 @@ contract BodhiCandy {
             currentBalance = currentBalance.add(depositAmount);
 
             // Return any deposits over the deposit amount
-            if (msg.value > depositAmount) {
-                msg.sender.transfer(msg.value.sub(depositAmount));
+            if (excessDeposit > 0) {
+                msg.sender.transfer(excessDeposit);
+                Returned(excessDeposit);
             }
         }
     }
