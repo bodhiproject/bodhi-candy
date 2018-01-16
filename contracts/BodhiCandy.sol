@@ -21,9 +21,9 @@ contract BodhiCandy {
         // Last depositer wins
         if (lastDepositer != address(0) 
             && lastDepositBlock != 0 
-            && block.number - lastDepositBlock >= winningBlockLength) {
+            && block.number.sub(lastDepositBlock) >= winningBlockLength) {
 
-            uint256 amountWon = currentBalance - depositAmount;
+            uint256 amountWon = currentBalance.sub(depositAmount);
             currentBalance = 0;
 
             if (amountWon > 0) {
@@ -36,11 +36,11 @@ contract BodhiCandy {
         } else {
             lastDepositer = msg.sender;
             lastDepositBlock = block.number;
-            currentBalance += depositAmount
+            currentBalance = currentBalance.add(depositAmount);
 
             // Return any deposits over the deposit amount
             if (msg.value > depositAmount) {
-                msg.sender.transfer(msg.value - depositAmount);
+                msg.sender.transfer(msg.value.sub(depositAmount));
             }
         }
     }
