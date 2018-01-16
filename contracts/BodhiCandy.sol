@@ -15,6 +15,8 @@ contract BodhiCandy {
     uint256 public lastDepositBlock;
     uint256 public currentBalance;
 
+    event UserWon(address indexed winner, uint256 amountWon);
+
     function deposit() external payable {
         require(msg.value >= depositAmount);
 
@@ -23,11 +25,12 @@ contract BodhiCandy {
             && lastDepositBlock != 0 
             && block.number.sub(lastDepositBlock) >= winningBlockLength) {
 
-            uint256 amountWon = currentBalance.sub(depositAmount);
+            uint256 amountWon = currentBalance;
             currentBalance = 0;
 
             if (amountWon > 0) {
                 lastDepositer.transfer(amountWon);
+                UserWon(lastDepositer, amountWon);
 
                 lastDepositer = msg.sender;
                 lastDepositBlock = block.number;
