@@ -1,0 +1,6 @@
+ce845d1d: currentBalance()
+d0e30db0: deposit()
+419759f5: depositAmount()
+2a3d7c81: lastDepositBlock()
+1e86a9dc: lastDepositer()
+9bb23087: winningBlockLength()
