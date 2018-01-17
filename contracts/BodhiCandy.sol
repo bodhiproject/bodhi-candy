@@ -30,7 +30,8 @@ contract BodhiCandy {
         // Last depositer wins
         if (lastDepositer != address(0) 
             && lastDepositBlock != 0 
-            && block.number.sub(lastDepositBlock) >= winningBlockLength) {
+            && block.number.sub(lastDepositBlock) >= winningBlockLength
+            && currentBalance > 0) {
 
             uint256 amountWon = currentBalance.add(excessDeposit);
             currentBalance = 0;
