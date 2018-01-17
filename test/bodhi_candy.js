@@ -104,17 +104,56 @@ contract('BodhiCandy', (accounts) => {
   });
 
   describe('fallback function', () => {
-    it('throws upon sending funds to it', async () => {
-      try {
-        await ethAsync.sendTransactionAsync({
-          to: contract.address,
-          from: accounts[0],
-          value: 1,
-        });
-        assert.fail();
-      } catch (e) {
-        SolAssert.assertRevert(e);
-      }
+    it('calls deposit()', async () => {
+      assert.equal(await contract.lastDepositer.call(), 0);
+      assert.equal(await contract.lastDepositBlock.call(), 0);
+      assert.equal(await contract.currentBalance.call(), 0);
+      assert.equal(web3.eth.getBalance(contract.address), 0);
+
+      await ethAsync.sendTransactionAsync({
+        to: contract.address,
+        from: USER0,
+        value: depositAmount,
+      });
+      assert.equal(await contract.lastDepositer.call(), USER0);
+      assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());
+      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.toString());
+      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.toString());
+
+      await contract.deposit({ 
+        value: depositAmount,
+        from: USER1
+      });
+      assert.equal(await contract.lastDepositer.call(), USER1);
+      assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());  
+      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.mul(2).toString());
+      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.mul(2).toString());
+
+      await contract.deposit({ 
+        value: depositAmount,
+        from: USER2
+      });
+      assert.equal(await contract.lastDepositer.call(), USER2);
+      assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());  
+      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.mul(3).toString());
+      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.mul(3).toString());
+      const winnerBalanceBefore = web3.eth.getBalance(USER2);
+
+      const lastDepositBlock = await contract.lastDepositBlock.call();
+      await timeMachine.mineTo(await getBlockNumber() + winningBlockLength.toNumber());
+      assert.equal(await getBlockNumber(), lastDepositBlock.add(winningBlockLength).toNumber());
+
+      // Send funds to winner: accounts[2]
+      await contract.deposit({ 
+        value: depositAmount,
+        from: USER3
+      });
+      assert.equal(await contract.lastDepositer.call(), USER3);
+      assert.equal(await contract.lastDepositBlock.call(), await getBlockNumber());  
+      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.toString());
+      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.toString());
+
+      assert.isAbove(web3.eth.getBalance(USER2).toNumber(), winnerBalanceBefore.toNumber());
     });
   });
 });

@@ -17,7 +17,14 @@ contract BodhiCandy {
 
     event UserWon(address indexed winner, uint256 amountWon);
 
-    function deposit() external payable {
+    /*
+    * @notice Accepts deposits from the fallback function.
+    */
+    function() external payable {
+        deposit();
+    }
+
+    function deposit() public payable {
         require(msg.value >= depositAmount);
 
         // Last depositer wins
@@ -42,12 +49,5 @@ contract BodhiCandy {
             lastDepositBlock = block.number;
             currentBalance = currentBalance.add(depositAmount);
         }
-    }
-
-    /*
-    * @notice Return payment if QTUM sent to contract. Forces user to use the deposit method.
-    */
-    function() external payable {
-        revert();
     }
 }
