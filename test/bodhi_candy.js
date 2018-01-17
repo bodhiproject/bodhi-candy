@@ -82,20 +82,19 @@ contract('BodhiCandy', (accounts) => {
       assert.isAbove(web3.eth.getBalance(USER2).toNumber(), winnerBalanceBefore.toNumber());
     });
 
-    it('returns any funds over the deposit', async () => {
-      const deposit = depositAmount.mul(2);
-      await contract.deposit({ 
-        value: deposit,
-        from: USER0
-      });
-      assert.equal((await contract.currentBalance.call()).toString(), depositAmount.toString());
-      assert.equal(web3.eth.getBalance(contract.address).toString(), depositAmount.toString());
-    });
-
     it('throws if msg.value < depositAmount', async () => {
       try {
         await contract.deposit({ 
           value: 1 
+        });
+        assert.fail();
+      } catch (e) {
+        SolAssert.assertRevert(e);
+      }
+
+      try {
+        await contract.deposit({ 
+          value: depositAmount.sub(1)
         });
         assert.fail();
       } catch (e) {
