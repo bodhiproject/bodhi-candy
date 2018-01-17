@@ -1,0 +1,31 @@
+{
+  "name": "bodhi-candy",
+  "version": "1.0.0",
+  "description": "Smart contract game",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bodhiproject/bodhi-candy.git"
+  },
+  "keywords": [
+    "bodhi",
+    "bodhi-candy",
+    "solidity",
+    "qtum"
+  ],
+  "author": "Deric Walintukan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bodhiproject/bodhi-candy/issues"
+  },
+  "homepage": "https://github.com/bodhiproject/bodhi-candy#readme",
+  "devDependencies": {
+    "bluebird": "^3.5.1",
+    "chai": "^4.1.2"
+  }
+}
